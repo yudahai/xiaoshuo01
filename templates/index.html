@@ -1,0 +1,30 @@
+{% extends "base.html"%}
+{% block content%}
+<h1 class="h1">大英俊小说网</h1>
+<br>
+<br>
+<div class="table-responsive">
+<table class="table">
+    <tr>
+        <td>小说名</td>
+        <td>作者</td>
+        <td>类型</td>
+        <td>图片</td>
+        <td>推荐</td>
+        <td>最近一次更新</td>
+        <td>总字数</td>
+    </tr>
+{% for entry in entries%}
+    <tr>
+        <td><h5><a href="/book/{{entry.id}}" class="btn btn-info">{{entry.name}}</a></h5></td>
+        <td>{{entry.author}}</td>
+        <td>{{entry.type}}</td>
+        <td><a href="/book/{{entry.id}}"><img class="head_pic" src="{{entry.image}}"></a></td>
+        <td>{{entry.recommend}}</td>
+        <td>{{entry.last_update}}</td>
+        <td>{{entry.words_count}}</td>
+    </tr>
+{% endfor %}
+</table>
+</div>
+{% endblock%}

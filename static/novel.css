@@ -1,0 +1,73 @@
+body,button, input, select, textarea,h1 ,h2, h3, h4, h5, h6, p { font-family: Microsoft YaHei,'宋体' , Tahoma, Helvetica, Arial, "\5b8b\4f53", sans-serif;}
+button {border-radius: 5px;}
+div {border-radius: 10px;}
+
+.btn-reply{
+  background-image: -webkit-linear-gradient(top, #5bc0de 0%, #2aabd2 100%);
+  background-image:      -o-linear-gradient(top, #5bc0de 0%, #2aabd2 100%);
+  background-image: -webkit-gradient(linear, left top, left bottom, from(#5bc0de), to(#2aabd2));
+  background-image:         linear-gradient(to bottom, #5bc0de 0%, #2aabd2 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff5bc0de', endColorstr='#ff2aabd2', GradientType=0);
+  filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);
+  background-repeat: repeat-x;
+  border-color: #28a4c9;
+  border-radius: 8px;
+}
+
+.btn-add-comment-user{
+  background-image: -webkit-linear-gradient(top, #5bc0de 0%, #2aabd2 100%);
+  background-image:      -o-linear-gradient(top, #5bc0de 0%, #2aabd2 100%);
+  background-image: -webkit-gradient(linear, left top, left bottom, from(#5bc0de), to(#2aabd2));
+  background-image:         linear-gradient(to bottom, #5bc0de 0%, #2aabd2 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff5bc0de', endColorstr='#ff2aabd2', GradientType=0);
+  filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);
+  background-repeat: repeat-x;
+  border-color: #28a4c9;
+  border-radius: 8px;
+
+}
+
+.btn-reply-comment {
+  background-image: -webkit-linear-gradient(top, #337ab7 0%, #265a88 100%);
+  background-image:      -o-linear-gradient(top, #337ab7 0%, #265a88 100%);
+  background-image: -webkit-gradient(linear, left top, left bottom, from(#337ab7), to(#265a88));
+  background-image:         linear-gradient(to bottom, #337ab7 0%, #265a88 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff337ab7', endColorstr='#ff265a88', GradientType=0);
+  filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);
+  background-repeat: repeat-x;
+  border-color: #245580;
+}
+
+.comment_reply{
+    border: 1px solid#b9def0;
+}
+
+.chat{
+  padding: 30px 15px;
+  margin-bottom: 30px;
+  color: inherit;
+  border-color: #23527c;
+  height: 300px;
+  width: 30%;
+  overflow: auto;
+  word-break: break-all;
+  position: fixed;
+}
+
+.chapter_content{
+    line-height: 150%;
+    font-size: x-large;
+}
+
+.content_edit{
+    position: fixed;
+    top: 90%;
+    left: 30%;
+}
+
+.head_pic{
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+}
+

@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="user_edit">
+    <label>昵称：</label><p id="user_name">{{user.nickname}}</p>
+    <label>头像：</label><p id="headpic"><img src="{{user.headpic}}" class="head_pic"></p>
+</div>
+{% endblock %}

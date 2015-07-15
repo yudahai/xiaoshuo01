@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="../static/jquery-2.1.3.min.js"></script>
+    <script src="../static/socket.io.js"></script>
+    <script src="../static/bootstrap-3.3.4-dist/js/bootstrap.min.js"></script>
+    <script src="../static/jquery.cookie.js"></script>
+    <link rel="icon" href="../static/fav.ico">
+    <link rel="stylesheet" type="text/css" href="../static/bootstrap-3.3.4-dist/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="../static/novel.css">
+    {% block title %}<title>大英俊小说网</title>{% endblock %}
+    <script>
+        $(function(){
+            var socket = io.connect('http://127.0.0.1:5000');
+            var nickname = "{{session['nickname']}}";
+            socket.on('connect', function(){
+                if(nickname != '') {
+                    socket.emit('my_login', {user: nickname});
+                }
+            });
+
+            $('#msgbutton').click(function(){
+                var msg = $('#msginput').val();
+                if (msg)
+                {
+                    socket.emit('message', {msg:msg,user:nickname});
+                    $('#msginput').val('');
+                }
+            });
+
+            socket.on('message', function(message){
+                if (message['user']=="{{session['nickname']}}")
+                {
+                    message['user']='我';
+                }
+                var msg = '<p>'+'<button type="button" class="btn btn-success">'+"{{session['nickname']}}"+'</button>'+message['msg']+'</p>'
+                //$('#msgdisplay').append(msg);
+                var msg_div = $('#msgdisplay');
+                msg_div.append(msg);
+                msg_div.scrollTop(1000000);
+            });
+
+            $(document).keydown(function(event){
+                if(event.keyCode == 13)
+                {
+                    var msg = $('#msginput').val();
+                    if (msg)
+                    {
+                        socket.emit('message', {msg:msg,user:nickname});
+                        $('#msginput').val('');
+                    }
+                }
+            });
+
+
+            $('#msghide').click(function(){
+                $('#chatdisplay').toggle();
+            });
+
+
+            //隐藏评论
+            $('#commenthide').click(
+                    function(){
+                        $('#comment').toggle();
+                        var isHidden = $('#comment').is(':hidden');
+                        $.cookie('commenthide', isHidden, {expires:700,path:'/'});
+                    });
+
+
+
+            $('#register').click(function(){
+                window.location.href='/register?backurl='+encodeURIComponent(window.location.href);
+            });
+        });
+
+        $(document).ready(function(){
+            var commentIsHidden = $.cookie('commenthide');
+            if (commentIsHidden == 'true')
+            {
+                $('#comment').attr({'hidden':'hidden'});
+            }
+            else
+            {
+                $('#comment').removeAttr('hidden');
+            }
+        })
+    </script>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row" style="background-color: #9acfea;border-radius: 10px;">
+        <div class="col-md-4">
+            <h1><a class="btn btn-primary btn-lg" href="/">大英俊小说网</a></h1>
+        </div>
+
+        <div class="col-md-4">
+            <form action="/search" method="post" class="form-inline">
+                <div class="form-group"  style="position:absolute;top:100%">
+                    <input type="text" name="search" class="form-control"  placeholder="请输入书名或者作者名">
+                    <input type="submit" value="搜索" class="btn btn-primary">
+                </div>
+            </form>
+        </div>
+
+        <div class="col-md-4">
+        {% if session['id']%}
+            <label>欢迎你:<a href="/user/{{session['id']}}">{{session['nickname']}}<img src="{{session['head_pic']}}" class="head_pic"></a></label>
+            <a href="/logout" class="btn btn-primary">退出登录</a>
+        {% else %}
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#login_dialog"
+                    data-whatever="登录">登录</button>
+            <div class="modal fade" id="login_dialog" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <h4 class="modal-title" id="loginModalLabel">登录</h4>
+                        </div>
+                        <div class="modal-body">
+                            <form id="login" action="/login" method="post">
+                                <div class="form-group">
+                                    <label>邮箱</label><input type="text" name="email" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label>密码</label><input type="password" name="password" class="form-control">
+                                </div>
+                                <input type="submit" id="login_submit" class="btn btn-primary" value="登录">
+                                <button type="button" id="register" class="btn btn-primary">注册</button>
+                            </form>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            {% if session['error'] %}
+                <p> {{session['error']}} </p>
+            {% endif %}
+        {% endif %}
+        </div>
+    </div>
+
+    <div class="row" style="background-color: #adadad">
+        <div class="col-md-4">
+            <div id="chatdiplay">
+                <div class="chat" id="msgdisplay">
+                </div>
+                <br>
+                {% if session['email'] %}
+                    <div class="form-inline" style="position: fixed;bottom: 15%">
+                        <input type="text" id="msginput" class="form-control">
+                        <button type="button" id="msgbutton" class="btn btn-primary">提交</button>
+                    </div>
+                {% endif%}
+                <br>
+            </div>
+            <button type="button" class="btn btn-primary" id="msghide" style="position: fixed;bottom: 10%">隐藏/展开聊天</button>
+            <button type="button" class="btn btn-primary" id="commenthide" style="position: fixed;bottom: 10%;left: 10%">隐藏/展开评论</button>
+        </div>
+
+        <div class="col-md-8">
+            {% block content %}{% endblock %}
+            <hr>
+            {% block comment %}{% endblock %}
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}
+<title>{{ novel.name}}</title>
+{% endblock %}
+
+{% block content%}
+{% if session['is_admin'] %}
+<form id="novel_infor" method="post" action="">
+<div class="form-group">
+    <label>小说名：</label>
+    <input type="text" class="form-control" value="{{novel.name}}" name="novel_name">
+</div>
+<div class="form-group">
+    <label>作者：</label>
+    <input type="text" class="form-control" value="{{novel.author}}" name="novel_author">
+</div>
+<div class="form-group">
+    最近更新：
+    <input type="text" class="form-control" value="{{novel.last_update}}" name="novel_last_update">
+</div>
+<div class="form-group">
+    小说类型：
+    <input type="text" class="form-control" value="{{novel.type}}" name="novel_type">
+</div>
+<div class="form-group">
+    图片：
+    <input type="text" class="form-control" value="{{novel.image}}" name="novel_image">
+</div>
+<div class="form-group">
+    简介：
+    <input type="text" class="form-control" value="{{novel.description}}" name="novel_description">
+</div>
+<div class="form-group">
+    推荐数：
+    <input type="text" class="form-control" value="{{novel.recommend if novel.recommend else 0}}" name="novel_recommend">
+</div>
+<div class="form-group">
+    信息链接：
+    <input type="text" class="form-control" value="{{novel.source_url}}" name="novel_source_url">
+</div>
+<div class="form-group">
+    笔趣阁链接：
+    <input type="text" class="form-control" value="{{novel.chapter_source_bequge_url}}" name="chapter_source_bequge_url">
+</div>
+<div class="form-group">
+    全本读链接：
+    <input type="text" class="form-control" value="{{novel.chapter_source_ybd_url}}" name="chapter_source_ybd_url">
+</div>
+    <input type="submit" class="btn btn-primary" value="修改保存">
+    </form>
+
+<h3><a href="/bookmenu/{{novel.id}}" class="btn btn-info">点击阅读</a> </h3>
+
+{% else %}
+    <table>
+        <h1>小说名:{{ novel.name }}</h1>
+        <p>作者:{{ novel.author }}</p>
+        <p>最近一次更新：{{novel.last_update}}</p>
+        <p>已完成字数:{{ novel.words_count }}</p>
+        <p>类型:{{ novel.type }}</p>
+        <p><img src="{{novel.image}}"></p>
+        <h3><a href="/bookmenu/{{novel.id}}" class="btn btn-info">点击阅读</a> </h3>
+        <p>简介：{{ novel.description | nl2br }}</p>
+        <p>小说推荐：{{ novel.recommend }}</p>
+    </table>
+{% endif%}
+{% endblock %}

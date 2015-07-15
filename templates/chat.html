@@ -1,0 +1,35 @@
+{% extends 'base.html'%}
+{% block title %}<title>Chat</title>{% endblock %}
+
+{% block content %}
+<script src="../static/socket.io.js"></script>
+<script>
+    $(function(){
+        var socket = io.connect('http://127.0.0.1:5000');
+        socket.on('connect', function(){
+            socket.emit('my event', {data:'已经连接上'});
+        });
+
+        $('#msgbutton').click(function(){
+            var msg = $('#msginput').val();
+            var username = "{{session['username']}}";
+            socket.emit('message', {msg:msg,user:username});
+            $('#msginput').val('');
+        });
+
+        socket.on('message', function(message){
+            $('#msgdisplay').append('<p>'+message['user']+'说:'+message['msg']+'</p>');
+        });
+
+    });
+</script>
+
+<div id="msgdisplay">
+
+</div>
+
+{% if session['username'] %}
+    <input type="text" id="msginput">
+    <button type="button" id="msgbutton">提交</button>
+{% endif%}
+{% endblock %}

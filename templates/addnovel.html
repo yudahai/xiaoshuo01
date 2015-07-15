@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block content%}
+<br>
+<script>
+    $(function(){
+        $('#soup_novel_btn').click(function(){
+            var json_data = {};
+            json_data['url']=$('#novel_url_input').val();
+            if (json_data['url'])
+            {
+                $.ajax({
+                    url:'/addnovel',
+                    dataType:'json',
+                    type:'post',
+                    contentType:'application/json',
+                    data:JSON.stringify(json_data),
+                    success:
+                            function(data){
+                                location.href="/book/"+data['new_id'];
+                            }
+                });
+            }
+        });
+    });
+</script>
+
+    <div class="form-group">
+        <label>小说信息URL</label>
+        <input type="url" class="form-control" placeholder="小说URL" id="novel_url_input">
+        <button class="btn btn-primary" id="soup_novel_btn">解析URL</button>
+    </div>
+
+    <div class="form-group">
+        <label>小说名</label>
+        <p contenteditable="true" id="novel_name"></p>
+    </div>
+    <div class="form-group">
+        <label>类型</label>
+        <p contenteditable="true" id="novel_type"></p>
+    </div>
+    <div class="form-group">
+        <label>图片</label>
+        <p contenteditable="true" id="novel_image"></p>
+    </div>
+    <div class="form-group">
+        <label>作者</label>
+        <p contenteditable="true" id="novel_author"></p>
+    </div>
+    <div class="form-group">
+        <label>字数</label>
+        <p contenteditable="true" id="novel_words_count"></p>
+    </div>
+    <div class="form-group">
+        <label>推荐数</label>
+        <p contenteditable="true" id="novel_recommend"></p>
+    </div>
+    <div class="form-group">
+        <label>最近更新</label>
+        <p contenteditable="true" id="novel_last_update"></p>
+    </div>
+    <div class="form-group">
+        <label>描述</label>
+        <p contenteditable="true" id="novel_description"></p>
+    </div>
+
+{% endblock%}

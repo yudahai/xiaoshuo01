@@ -1,0 +1,264 @@
+{% extends "base.html" %}
+{% block title %}
+<title>{{novel_name}}</title>
+{% endblock %}
+
+{% block content %}
+
+<script>
+    $(document).keydown(function (event) {
+        if (event.keyCode == 37) {
+            location.href = $('#last').attr('href');
+        } else if (event.keyCode == 39) {
+            location.href = $('#next').attr('href')
+        }
+    });
+
+    //编辑文章内容
+    $(function(){
+        $("#edit_content").click(function(){
+            $("p.chapter_content").attr("contenteditable","true");
+        });
+
+        $("#save_content").click(function(){
+            var chapter_content={};
+            chapter_content['content']=$('p.chapter_content').html();
+            $.ajax({
+                url:'/read/{{chapter.id}}',
+                type:'post',
+                dataType:'json',
+                contentType:'application/json',
+                data:JSON.stringify(chapter_content),
+                success:
+                        function(data, status){
+                            if (data['code'] == 1){
+                                alert("成功保存");
+                                $("p.chapter_content").attr("contenteditable","false");
+                            }
+                            else{
+                                alert("保存不成功");
+                            }
+                        }
+            });
+        });
+    });
+
+    //把读过的章节存入localStorage
+    $(document).ready(function(){
+        if(!localStorage.getItem("have_read"))
+        {
+            localStorage.setItem('have_read','{{chapter.id}}');
+        }
+        else if($.inArray('{{chapter.id}}', localStorage['have_read'].split(' '))==-1)
+        {
+            localStorage['have_read'] +=' {{chapter.id}}';
+        }
+    })
+</script>
+
+
+<h1>{{chapter.name}}</h1>
+    <a href="/read/{{chapter.last_chapter}}">上一章</a>
+    <a href="/bookmenu/{{chapter.novel_id}}">回到目录</a>
+    <a href="/read/{{chapter.next_chapter}}">下一章</a>
+    <hr>
+    <p class="chapter_content">{{chapter.content | nl2br}}</p>
+    {% if session['email'] and session['is_admin']%}
+    <div class="content_edit">
+        <button id="edit_content">编辑</button>
+        <br>
+        <button id="save_content">保存</button>
+    </div>
+    {%endif%}
+    <hr>
+    <a id='last' href="/read/{{chapter.last_chapter}}">上一章</a>
+    <a href="/bookmenu/{{chapter.novel_id}}">回到目录</a>
+    <a id='next' href="/read/{{chapter.next_chapter}}">下一章</a>
+{% endblock %}
+
+{% block comment%}
+
+<script>
+    function in_array(search,array){
+        for(var i in array){
+            if(array[i]==search){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    $(function(){
+        //新发帖子
+        $('#commentsbm').click(function(){
+            var commentdata = {};
+            commentdata['post_user_id'] = "{{session['id']}}";
+            commentdata['comment'] = $('#commentinput').val();
+            commentdata['username'] = "{{session['email']}}";
+            commentdata['novel_id'] = "{{chapter.novel_id}}";
+            commentdata['is_host'] = true;
+            var headpic = "{{session['head_pic']}}";
+            $.ajax({
+                type:'post',
+                url:'/addcomment',
+                dataType:'json',
+                contentType:'application/json',
+                data:JSON.stringify(commentdata),
+                success:
+                        function(data,status){
+                            var div_comment =[
+                                    '<div class="comment_host"  group_id="'+data['group_id']+'" comment_id="'+data['comment_id']+'">',
+                                    '   <div>',
+                                    '       <button class="btn-add-comment-user">'+'{{session["nickname"]}}'+'</button>'+'<img src='+headpic+' class="head_pic">',
+                                    '   </div>',
+                                    '   <div>',
+                                    '      <p>'+commentdata['comment']+'</p>',
+                                    '   </div>',
+                                    '   <div>',
+                                    '      <button class="btn-reply">回复</button>',
+                                    '      <button class="btn-show">展开评论</button>',
+                                    '   </div>',
+                                    '   <div class="reply_comment" hidden="hidden">',
+                                    '   </div>',
+                                    '</div>',
+                                    '<hr>',
+                            ].join('\n');
+                            $('#comment_display').append(div_comment);
+                            $('#commentinput').val('');
+                        }
+            });
+            return false;
+        });
+
+        //回复帖子
+        var reply_comment_form = '<div id="reply_comment"><input type="text" class="input-lg" id="input-reply-comment" size="100%"><button class="btn" id="btn-reply-comment">回复</button><button class="btn" id="btn-cancel-comment">取消</button></div>';
+        $('.btn-reply').click(function(){
+            var comment_reply = $(this).parent().next('div.comment_reply');
+            $('#reply_comment').remove();
+            $(this).parent().append(reply_comment_form);
+            $('#btn-cancel-comment').click(function(){
+                $('#reply_comment').remove();
+            });
+            var commentdata={}
+            commentdata['post_user_id'] = "{{session['id']}}";
+            commentdata['to_user_id'] = $(this).parent().parent().attr("post_user_id");
+            commentdata['group_id'] = $(this).parent().parent().attr("group_id");
+            $('#btn-reply-comment').click(function(){
+                var comment = $('#input-reply-comment').val();
+                var headpic = "{{session['headpic']}}";
+                commentdata['comment'] = comment;
+                commentdata['username'] = "{{session['email']}}";
+                commentdata['novel_id'] = "{{chapter.novel_id}}";
+                commentdata['is_host'] = false;
+                if (comment){
+                    $.ajax({
+                        type:'post',
+                        url:'/addcomment',
+                        dataType:'json',
+                        contentType:'application/json',
+                        data:JSON.stringify(commentdata),
+                        success:
+                                function(data,status){
+                                    var div_comment = [
+                                            '<div class="reply_comment" comment_id="'+data['comment_id']+'">',
+                                            '   <div>',
+                                            '       <button class="btn-add-comment-user">'+'{{session["nickname"]}}'+'</button>'+'<img src='+"{{session['head_pic']}}"+' class="head_pic">',
+                                            '   回复   ',
+                                            '       <button class="btn-add-comment-user">'+data['to_nickname']+'</button>'+'<img src='+data['to_headpic']+' class="head_pic">',
+                                            '   </div>',
+                                            '   <div>',
+                                            '      <p>'+commentdata['comment']+'</p>',
+                                            '   </div>',
+                                            '   <div>',
+                                            '      <button class="btn-reply">回复</button>',
+                                            '   </div>',
+                                            '</div>'
+                                    ].join('\n');
+                                    comment_reply.append(div_comment);
+                                    $('#reply_comment').remove();
+                                }
+                    });
+                }
+            });
+        });
+
+
+
+        //展开评论
+        $('button.btn-show').click(function(){
+            var replydata ={};
+            var comment_reply = $(this).parent().next('div.comment_reply');
+            comment_reply.toggle();
+            var exist_comments = comment_reply.children("div.reply_comment");
+            var exist_comment_ids;
+            for (var i=0;i<exist_comments.length;i++){
+                exist_comment_ids.append(exist_comments[i].getAttribute("comment_id"));
+            }
+            replydata['group_id'] = $(this).parent().parent().attr('group_id');
+            $.ajax({
+                        type:'post',
+                        url:'/replycomment',
+                        dataType:'json',
+                        contentType:'application/json',
+                        data:JSON.stringify(replydata),
+                        success:
+                                function(data,status){
+                                    var comments =data.comments;
+                                    for (var x=0;x<comments.length;x++){
+                                        if (in_array(comments[x]['id'], exist_comment_ids))
+                                        {
+                                            continue;
+                                        }
+                                        var comment_html=[
+                                            '<div class="reply_comment" comment_id="'+comments[x]['id']+'">',
+                                            '   <div>',
+                                            '       <button class="btn-add-comment-user">'+comments[x]['post_nickname']+'</button>'+'<img src='+comments[x]['post_headpic']+' class="head_pic">',
+                                            '   回复   ',
+                                            '       <button class="btn-add-comment-user">'+comments[x]['to_nickname']+'</button>'+'<img src='+comments[x]['to_headpic']+' class="head_pic">',
+                                            '   </div>',
+                                            '   <div>',
+                                            '      <p>'+comments[x]['comment']+'</p>',
+                                            '   </div>',
+                                            '   <div>',
+                                            '      <button class="btn-reply">回复</button>',
+                                            '   </div>',
+                                            '<br>',
+                                            '</div>'
+                                        ].join('\n');
+                                        comment_reply.append(comment_html);
+                                    }
+                                }
+                    });
+        });
+    })
+</script>
+
+    <div id="comment">
+        <div id="comment_display">
+        {% for comment in comments %}
+            <div class="comment_host" group_id="{{comment.group_id}}"  comment_id="{{comment.id}}" post_user_id="{{comment.from_user_id}}">
+                <div>
+                    <button class="btn-add-comment-user">{{comment.from_user.nickname}}</button><img src="{{comment.from_user.headpic}}" class="head_pic">
+                </div>
+                <div>
+                    <p>{{comment.content}}</p>
+                </div>
+                <div>
+                    <button class="btn-reply">回复</button>
+                    <button class="btn-show">展开评论</button>
+                </div>
+                <div class="comment_reply" hidden="hidden">
+                </div>
+            </div>
+            <hr>
+        {% endfor %}
+        </div>
+        {% if session['nickname']%}
+        <div class="form-group">
+            <input type="text" id="commentinput" size="100%" class="form-control">
+            <button type="button" id="commentsbm" class="btn btn-primary btn-lg">发表帖子</button>
+        </div>
+        {% endif%}
+    </div>
+
+{% endblock %}

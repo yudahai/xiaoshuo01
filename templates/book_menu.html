@@ -1,0 +1,125 @@
+{% extends "base.html"%}
+{% block title%}
+<title>{{ novel_name }}</title>
+{% endblock %}
+
+{% block content %}
+<script>
+  $(document).ready(
+      function() {
+        var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+        var have_read;
+        have_read = localStorage['have_read'].split(' ');
+        return $('a.bg-info').each(function() {
+          var chapter_id;
+          chapter_id = $(this).attr('chapter_id');
+          if (indexOf.call(have_read, chapter_id) >= 0) {
+            $(this).attr('class', 'bg-success');
+            $(this).append('<span class="btn-success">已读</span>');
+          }
+        });
+        });
+
+    $(function(){
+        $('#update_from_ybd').click(
+                function(){
+                    $('#update_novel_status').modal('show');
+                    $('#update_novel_status').on('shown.bs.modal', function(){
+                        $('#status_words').text('正在寻找小说...');
+                    });
+                    $.ajax({
+                        type:'post',
+                        url:location.href,
+                        dataType:'json',
+                        contentType:'application/json',
+                        data:JSON.stringify({'update_from':1}),
+                        success:
+                                function(data, status){
+                                    if(data['good'] == '1')
+                                    {
+                                        $('#status_words').text('上传目录完成，正在更新内容，可能要5分钟');
+                                        setTimeout(function(){
+                                                    $('#update_novel_status').modal('hide');
+                                                    window.location.reload();
+                                                },
+                                                300000);
+                                    }
+                                }
+                    });
+        });
+
+        $('#update_from_bqg').click(function(){
+            $('#update_novel_status').modal('show');
+            $('#update_novel_status').on('shown.bs.modal', function(){
+                $('#status_words').text('正在寻找小说...');
+            });
+            $.ajax({
+                type:'post',
+                url:location.href,
+                dataType:'json',
+                contentType:'application/json',
+                data:JSON.stringify({'update_from':2}),
+                success:
+                        function(data, status){
+                            if(data['good'] == '1')
+                            {
+                                $('#status_words').text('上传目录完成，正在更新内容，可能要5分钟');
+                                setTimeout(function(){
+                                            $('#update_novel_status').modal('hide');
+                                            window.location.reload();
+                                        },
+                                        300000);
+                            }
+                        }
+
+            });
+        });
+    });
+
+</script>
+<h1><a href="/book/{{ novel_id }}" class="btn btn-primary btn-lg">{{ novel.name }}</a></h1>
+<div class="modal fade" id="update_novel_status" tabindex="-1" role="dialog" aria-labelledby="上传状态" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <h1 id="status_words"></h1>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <h3>一本读章节</h3>
+        {% if session['is_admin'] and not ybd_chapter|length and novel.chapter_source_ybd_url%}
+            <button id="update_from_ybd" type="button" class="btn btn-default">从一本读上传章节</button>
+        {% elif not session['is_admin'] and not ybd_chapter|length %}
+            <label class="label-danger">一本读资源为空，待管理员上传</label>
+        {% else %}
+            <table class="table">
+            {% for chapter_item in ybd_chapter %}
+                <tr>
+                    <td><a class="bg-info" href="/read/{{ chapter_item[0] }}" role="menu" chapter_id="{{ chapter_item[0] }}">{{ chapter_item[1] }}</a></td>
+                </tr>
+            {% endfor %}
+            </table>
+        {%endif%}
+    </div>
+
+    <div class="col-md-6">
+        <h3>笔趣阁章节</h3>
+        {% if session['is_admin'] and not bqg_chapter|length and novel.chapter_source_bequge_url%}
+            <button id="update_from_bqg" type="button" class="btn btn-default">从笔趣阁上传章节</button>
+        {% elif not session['is_admin'] and not bqg_chapter|length %}
+            <label class="label-danger">笔趣阁资源为空，待管理员上传</label>
+        {% else %}
+            <table class="table">
+            {% for chapter_item in bqg_chapter %}
+                <tr>
+                    <td><a class="bg-info" href="/read/{{ chapter_item[0] }}" role="menu" chapter_id="{{ chapter_item[0] }}">{{ chapter_item[1] }}</a></td>
+                </tr>
+            {% endfor %}
+            </table>
+        {%endif%}
+    </div>
+</div>
+{% endblock %}

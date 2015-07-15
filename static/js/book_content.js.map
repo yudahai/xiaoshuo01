@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "book_content.js",
+  "sourceRoot": "",
+  "sources": [
+    "book_content.coffee"
+  ],
+  "names": [],
+  "mappings": ";AAAA;AAAA;AAAA"
+}

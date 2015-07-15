@@ -1,0 +1,29 @@
+{% extends 'base.html'%}
+{% block content%}
+{% if search_items %}
+<table class="table">
+    <tr>
+        <td>小说名</td>
+        <td>作者</td>
+        <td>类型</td>
+        <td>图片</td>
+        <td>推荐</td>
+        <td>最近一次更新</td>
+        <td>总字数</td>
+    </tr>
+    {% for item in search_items%}
+        <tr>
+            <td><a href="/book/{{item.id}}">{{item.name}}</a></td>
+            <td>{{item.author}}</td>
+            <td>{{item.type}}</td>
+            <td><a href="/book/{{item.id}}"><img class="head_pic" src="{{item.image}}"></a></td>
+            <td>{{item.recommend}}</td>
+            <td>{{item.last_update}}</td>
+            <td>{{item.words_count}}</td>
+        </tr>
+    {% endfor %}
+</table>
+{% else %}
+<h1>没有找到任何相关数据,是不是输错了？</h1>
+{% endif %}
+{% endblock %}
